@@ -16,9 +16,11 @@ A análise foi conduzida com vetores de tamanhos variados, de 1.000 a 1.000.000 
 
 Para uma exploração completa e dinâmica dos resultados, desenvolvemos um **dashboard interativo**. Ele é a principal forma de visualizar e comparar os dados coletados.
 
-### **[Clique aqui para acessar o Dashboard de Análise]()**
+<div align="center">
+  <img src="dash-board.png"  />
+</div>
 
-
+### **[Clique aqui para acessar o Dashboard de Análise](https://vmlof.github.io/Ordenacao-RA4-RPEC/)**
 
 <br>
 
@@ -43,7 +45,7 @@ Para uma exploração completa e dinâmica dos resultados, desenvolvemos um **da
 
 1.  **Clone o Repositório:**
     ```bash
-    git clone [https://github.com/vmlof/Ordenacao-RA4-RPEC.git](https://github.com/vmlof/Ordenacao-RA4-RPEC.git)
+    git clone https://github.com/vmlof/Ordenacao-RA4-RPEC.git
     ```
 2.  **Abra o Projeto:**
 
