@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard de Análise de Algoritmos de Ordenação</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 50vh;
+            max-height: 500px;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+        .accordion-button.active + .accordion-content {
+            max-height: 500px;
+        }
+        .accordion-button svg {
+            transition: transform 0.3s ease;
+        }
+        .accordion-button.active svg {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+<div class="container mx-auto p-4 sm:p-6 lg:p-8">
+    <header class="text-center mb-12">
+        <h1 class="text-3xl md:text-4xl font-bold text-slate-900">
+            Análise de Desempenho de Algoritmos de Ordenação
+        </h1>
+        <p class="mt-2 text-lg text-slate-600">
+            Um painel interativo para explorar a eficiência de diferentes
+            algoritmos.
+        </p>
+    </header>
+
+    <main class="space-y-12">
+        <section
+                id="interactive-dashboard"
+                class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200"
+        >
+            <div
+                    class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4"
+            >
+                <h2 class="text-xl font-bold text-slate-700">
+                    Exploração Interativa de Métricas
+                </h2>
+                <div
+                        id="metric-selector"
+                        class="flex flex-wrap justify-center gap-2 p-1 bg-slate-100 rounded-lg"
+                >
+                    <button
+                            data-metric="tempo"
+                            class="metric-btn px-4 py-2 text-sm font-semibold rounded-md transition-colors"
+                    >
+                        Tempo de Execução
+                    </button>
+                    <button
+                            data-metric="trocas"
+                            class="metric-btn px-4 py-2 text-sm font-semibold rounded-md transition-colors"
+                    >
+                        Número de Trocas
+                    </button>
+                    <button
+                            data-metric="iteracoes"
+                            class="metric-btn px-4 py-2 text-sm font-semibold rounded-md transition-colors"
+                    >
+                        Número de Iterações
+                    </button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </section>
+
+        <section id="key-insights">
+            <h2 class="text-2xl font-bold text-center mb-8 text-slate-800">
+                Principais Insights
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-emerald-500 flex items-center gap-4"
+                >
+                    <svg
+                            class="w-8 h-8 text-emerald-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                    >
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z"
+                        ></path>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-slate-500 mb-1">
+                            Mais Rápido (em 1M)
+                        </h3>
+                        <p id="insight-best" class="text-2xl font-bold text-slate-900">
+                            -
+                        </p>
+                    </div>
+                </div>
+                <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-rose-500 flex items-center gap-4"
+                >
+                    <svg
+                            class="w-8 h-8 text-rose-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                    >
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                        ></path>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-slate-500 mb-1">
+                            Mais Lento (em 1M)
+                        </h3>
+                        <p id="insight-worst" class="text-2xl font-bold text-slate-900">
+                            -
+                        </p>
+                    </div>
+                </div>
+                <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-sky-500 flex items-center gap-4"
+                >
+                    <svg
+                            class="w-8 h-8 text-sky-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                    >
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M7 11l5-5m0 0l5 5m-5-5v12"
+                        ></path>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-slate-500 mb-1">
+                            Melhor Escalabilidade
+                        </h3>
+                        <p class="text-2xl font-bold text-slate-900">Merge Sort</p>
+                    </div>
+                </div>
+                <div
+                        class="bg-white p-6 rounded-xl shadow-md border-l-4 border-amber-500 flex items-center gap-4"
+                >
+                    <svg
+                            class="w-8 h-8 text-amber-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                    >
+                        <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
+                        ></path>
+                    </svg>
+                    <div>
+                        <h3 class="font-semibold text-slate-500 mb-1">
+                            Menor No. de Trocas
+                        </h3>
+                        <p class="text-2xl font-bold text-slate-900">Selection Sort</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="algorithm-details">
+            <h2 class="text-2xl font-bold text-center mb-8 text-slate-800">
+                Detalhes dos Algoritmos
+            </h2>
+            <div class="space-y-4 max-w-4xl mx-auto">
+                <!-- Os itens do Accordion serão inseridos aqui pelo JavaScript -->
+            </div>
+        </section>
+
+        <!-- NOVA SEÇÃO DE CONCLUSÃO -->
+        <section id="conclusion">
+            <h2 class="text-2xl font-bold text-center mb-8 text-slate-800">
+                Conclusão da Análise
+            </h2>
+            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Card 1: Teoria na Prática -->
+                <div
+                        class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center text-center"
+                >
+                    <div class="bg-sky-100 p-4 rounded-full mb-4">
+                        <svg
+                                class="w-10 h-10 text-sky-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                        Teoria Comprovada na Prática
+                    </h3>
+                    <p class="text-slate-600">
+                        Os resultados confirmam a análise de complexidade (Big O).
+                        Algoritmos
+                        <strong
+                                class="font-mono bg-slate-100 text-slate-800 px-2 py-1 rounded-md text-sm"
+                        >O(n log n)</strong
+                        >
+                        demonstram uma performance vastamente superior à dos algoritmos
+                        <strong
+                                class="font-mono bg-slate-100 text-slate-800 px-2 py-1 rounded-md text-sm"
+                        >O(n²)</strong
+                        >
+                        em grandes volumes de dados.
+                    </p>
+                </div>
+
+                <!-- Card 2: Os Campeões -->
+                <div
+                        class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center text-center"
+                >
+                    <div class="bg-emerald-100 p-4 rounded-full mb-4">
+                        <svg
+                                class="w-10 h-10 text-emerald-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 11l3-3m0 0l3 3m-3-3v8m0-13a9 9 0 110 18 9 9 0 010-18z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                        Os Campeões da Escalabilidade
+                    </h3>
+                    <p class="text-slate-600">
+                        <strong>Merge Sort</strong> e <strong>Shell Sort</strong> são as
+                        escolhas ideais para cenários de uso geral. Eles mantêm a
+                        eficiência mesmo com o aumento exponencial do número de
+                        elementos.
+                    </p>
+                </div>
+
+                <!-- Card 3: A Armadilha -->
+                <div
+                        class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center text-center"
+                >
+                    <div class="bg-rose-100 p-4 rounded-full mb-4">
+                        <svg
+                                class="w-10 h-10 text-rose-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                        A Armadilha da Simplicidade
+                    </h3>
+                    <p class="text-slate-600">
+                        A simplicidade do <strong>Selection Sort</strong> e
+                        <strong>Gnome Sort</strong> tem um custo altíssimo de
+                        performance, tornando-os inviáveis para aplicações que exigem
+                        velocidade e eficiência.
+                    </p>
+                </div>
+
+                <!-- Card 4: A Lição -->
+                <div
+                        class="bg-white p-8 rounded-2xl shadow-lg border border-slate-200 flex flex-col items-center text-center"
+                >
+                    <div class="bg-amber-100 p-4 rounded-full mb-4">
+                        <svg
+                                class="w-10 h-10 text-amber-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                        >
+                            <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                            ></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">
+                        A Lição Principal
+                    </h3>
+                    <p class="text-slate-600">
+                        A escolha do algoritmo correto não é apenas uma otimização, mas
+                        um <strong>pilar fundamental</strong> para a construção de
+                        software escalável e de alta performance.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // DADOS ATUALIZADOS A PARTIR DO ARQUIVO tabela_comparativa.csv
+        const reportData = {
+            sizes: [1000, 10000, 100000, 500000, 1000000],
+            algorithms: {
+                "Selection Sort": {
+                    color: "rgba(239, 68, 68, 0.7)", // Red-500
+                    borderColor: "rgb(220, 38, 38)",
+                    tempo: [3.63, 31.71, 1991.22, 60341.43, 188490.94],
+                    trocas: [992, 9990, 99987, 499981, 999977],
+                    iteracoes: [499500, 49995000, 704982704, 445698416, 1783293664],
+                    description:
+                        "Um algoritmo simples que percorre a lista, encontrando o menor elemento e o colocando na primeira posição. O processo é repetido para o restante da lista. Destaca-se pelo baixo número de trocas.",
+                    complexity: "O(n²)",
+                },
+                "Merge Sort": {
+                    color: "rgba(16, 185, 129, 0.7)", // Emerald-500
+                    borderColor: "rgb(5, 150, 105)",
+                    tempo: [0.22, 1.19, 12.13, 57.45, 118.03],
+                    trocas: [4321, 59135, 759870, 4389564, 9279448],
+                    iteracoes: [9976, 133616, 1668928, 9475712, 19951424],
+                    description:
+                        'Um algoritmo eficiente do tipo "dividir para conquistar". Ele divide a lista em duas metades, ordena cada metade recursivamente e, em seguida, mescla as duas metades ordenadas para produzir o resultado final. Excelente escalabilidade.',
+                    complexity: "O(n log n)",
+                },
+                "Shell Sort": {
+                    color: "rgba(14, 165, 233, 0.7)", // Sky-500
+                    borderColor: "rgb(2, 132, 199)",
+                    tempo: [0.31, 1.04, 9.11, 57.9, 124.07],
+                    trocas: [8731, 166100, 2953263, 21433545, 50674794],
+                    iteracoes: [13743, 236992, 3879084, 26797933, 62069905],
+                    description:
+                        "Uma melhoria do Insertion Sort que permite a troca de elementos distantes. O algoritmo ordena elementos separados por um determinado intervalo (gap), reduzindo gradualmente o intervalo até que seja 1. Muito rápido na prática.",
+                    complexity: "Varia de O(n log n) a O(n²)",
+                },
+                "Gnome Sort": {
+                    color: "rgba(245, 158, 11, 0.7)", // Amber-500
+                    borderColor: "rgb(217, 119, 6)",
+                    tempo: [1.41, 80.86, 8130.94, 202214.21, 814812.09],
+                    trocas: [255374, 25089013, 2500587653, 62476328911, 250021388916],
+                    iteracoes: [
+                        511740, 50188016, 5001275295, 124953157811, 500043777824,
+                    ],
+                    description:
+                        'Um algoritmo simples que se assemelha ao Insertion Sort. Ele move um elemento para sua posição correta através de uma série de trocas, como um "gnomo de jardim" arrumando vasos. Apresenta desempenho muito baixo em dados aleatórios.',
+                    complexity: "O(n²)",
+                },
+            },
+        };
+
+        const metricConfig = {
+            tempo: { label: "Tempo Médio (ms)", unit: "ms" },
+            trocas: { label: "Número Médio de Trocas", unit: "" },
+            iteracoes: { label: "Número Médio de Iterações", unit: "" },
+        };
+
+        const ctx = document
+            .getElementById("performanceChart")
+            .getContext("2d");
+        let performanceChart;
+
+        function createOrUpdateChart(metric) {
+            const datasets = Object.keys(reportData.algorithms).map(
+                (algoName) => {
+                    const algoData = reportData.algorithms[algoName];
+                    return {
+                        label: algoName,
+                        data: algoData[metric],
+                        borderColor: algoData.borderColor,
+                        backgroundColor: algoData.color,
+                        tension: 0.1,
+                        borderWidth: 2.5,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: algoData.borderColor,
+                    };
+                }
+            );
+
+            const chartData = {
+                labels: reportData.sizes.map((s) => s.toLocaleString("pt-BR")),
+                datasets: datasets,
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
+                plugins: {
+                    legend: {
+                        position: "top",
+                        labels: { font: { size: 14, weight: "500" }, padding: 20 },
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                let label = context.dataset.label || "";
+                                if (label) {
+                                    label += ": ";
+                                }
+                                if (context.parsed.y !== null) {
+                                    label +=
+                                        context.parsed.y.toLocaleString("pt-BR") +
+                                        " " +
+                                        metricConfig[metric].unit;
+                                }
+                                return label;
+                            },
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Tamanho do Vetor",
+                            font: { size: 14, weight: "600" },
+                        },
+                        grid: { display: false },
+                    },
+                    y: {
+                        type: "logarithmic",
+                        title: {
+                            display: true,
+                            text: metricConfig[metric].label,
+                            font: { size: 14, weight: "600" },
+                        },
+                        ticks: {
+                            callback: function (value) {
+                                const log10 = Math.log10(value);
+                                if (log10 === Math.floor(log10) || value < 10) {
+                                    return Number(value.toString()).toLocaleString("pt-BR");
+                                }
+                            },
+                        },
+                    },
+                },
+            };
+
+            if (performanceChart) {
+                performanceChart.data = chartData;
+                performanceChart.options = chartOptions;
+                performanceChart.update();
+            } else {
+                performanceChart = new Chart(ctx, {
+                    type: "line",
+                    data: chartData,
+                    options: chartOptions,
+                });
+            }
+            updateUI(metric);
+        }
+
+        function updateUI(metric) {
+            document.querySelectorAll(".metric-btn").forEach((btn) => {
+                const isSelected = btn.dataset.metric === metric;
+                btn.classList.toggle("bg-sky-600", isSelected);
+                btn.classList.toggle("text-white", isSelected);
+                btn.classList.toggle("text-slate-700", !isSelected);
+                btn.classList.toggle("hover:bg-sky-500", !isSelected);
+            });
+
+            const lastSizeIndex = reportData.sizes.length - 1;
+            let bestAlgo = "",
+                worstAlgo = "",
+                bestVal = Infinity,
+                worstVal = -Infinity;
+
+            for (const algoName in reportData.algorithms) {
+                const val = reportData.algorithms[algoName][metric][lastSizeIndex];
+                if (val < bestVal) {
+                    bestVal = val;
+                    bestAlgo = algoName;
+                }
+                if (val > worstVal) {
+                    worstVal = val;
+                    worstAlgo = algoName;
+                }
+            }
+
+            document.getElementById("insight-best").textContent = bestAlgo;
+            document.getElementById("insight-worst").textContent = worstAlgo;
+        }
+
+        document
+            .getElementById("metric-selector")
+            .addEventListener("click", (e) => {
+                if (e.target.classList.contains("metric-btn")) {
+                    createOrUpdateChart(e.target.dataset.metric);
+                }
+            });
+
+        function createAlgorithmDetails() {
+            const container = document.querySelector(
+                "#algorithm-details .space-y-4"
+            );
+            let html = "";
+            for (const algoName in reportData.algorithms) {
+                const algoData = reportData.algorithms[algoName];
+                html += `
+                        <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+                            <button type="button" class="accordion-button flex items-center justify-between w-full p-5 font-medium text-left text-slate-700 hover:bg-slate-50 transition-colors">
+                                <span class="text-lg">${algoName}</span>
+                                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-5 border-t border-slate-200 text-slate-600 space-y-3">
+                                    <p>${algoData.description}</p>
+                                    <p><strong>Complexidade Teórica:</strong> <span class="font-mono bg-slate-100 text-slate-800 px-2 py-1 rounded-md text-sm">${algoData.complexity}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }
+            container.innerHTML = html;
+
+            container.addEventListener("click", (e) => {
+                const button = e.target.closest(".accordion-button");
+                if (button) {
+                    const currentlyActive = document.querySelector(
+                        ".accordion-button.active"
+                    );
+                    if (currentlyActive && currentlyActive !== button) {
+                        currentlyActive.classList.remove("active");
+                    }
+                    button.classList.toggle("active");
+                }
+            });
+        }
+
+        // Inicialização do painel
+        createAlgorithmDetails();
+        createOrUpdateChart("tempo");
+    });
+</script>
+</body>
+</html>
